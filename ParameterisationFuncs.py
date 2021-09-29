@@ -11,7 +11,7 @@ import dask
 def generate_snicar_params_single_layer(density, dz, alg, solzen):
     
     rho_layers = [density,density]
-    grain_rds = [density,density]
+    grain_rds = [1000-density,1000-density]
     layer_type = [1,1]
     mss_cnc_glacier_algae = [alg,0]
     dz = [0.001, dz]
@@ -186,37 +186,16 @@ def test_model_single_layer(test_densities, test_dzs, test_algs, test_zeniths, m
     return df
 
 
-def save_model(model, filename, savepath):
+def save_model(model, filename, var, savepath):
 
     # save model summary to text file
     with open(filename, 'w') as fh:
         fh.write(model.summary().as_text())
     
     # save model instance to pickle
-    model.save(str(savepath)+"parameterisation_model.pkl")
+    model.save(str(savepath)+f"parameterisation_model_{var}.pkl")
 
     return 
-
-
-
-def evaluate_model_performance(path_to_data):
-
-    data = pd.read_csv(path_to_data)
-    data = data[data.abs_error<0.1] #remove invalid snicar runs
-    mean_err = np.round(data.abs_error.mean(),4)
-    std_err = np.round(data.abs_error.std(),4)
-
-    print(f"absolute error = {mean_err} +/- {std_err}")
-
-    print("Linear regression btwn SNICAR and param predictions:\n")
-    x = data.SNICARBBA
-    y = data.paramBBA
-
-    model = sm.OLS(y,x).fit()
-    print("MODEL PARAMS = \n",model.params)
-    print(f"MODEL R2 = {model.rsquared}")
-
-    return
 
 
 def call_snicar(params):

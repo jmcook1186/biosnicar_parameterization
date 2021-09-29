@@ -1,27 +1,27 @@
                             OLS Regression Results                            
 ==============================================================================
-Dep. Variable:                    BBA   R-squared:                       0.896
-Model:                            OLS   Adj. R-squared:                  0.895
-Method:                 Least Squares   F-statistic:                     1566.
-Date:                Wed, 29 Sep 2021   Prob (F-statistic):               0.00
-Time:                        12:19:56   Log-Likelihood:                 1370.3
-No. Observations:                 735   AIC:                            -2731.
-Df Residuals:                     730   BIC:                            -2708.
+Dep. Variable:                    BBA   R-squared:                       0.751
+Model:                            OLS   Adj. R-squared:                  0.749
+Method:                 Least Squares   F-statistic:                     549.4
+Date:                Wed, 29 Sep 2021   Prob (F-statistic):          1.90e-218
+Time:                        15:58:59   Log-Likelihood:                 1385.2
+No. Observations:                 735   AIC:                            -2760.
+Df Residuals:                     730   BIC:                            -2737.
 Df Model:                           4                                         
 Covariance Type:            nonrobust                                         
 ==============================================================================
                  coef    std err          t      P>|t|      [0.025      0.975]
 ------------------------------------------------------------------------------
-const          0.6867      0.011     63.476      0.000       0.665       0.708
-density       -0.0006   9.82e-06    -61.554      0.000      -0.001      -0.001
-dz             1.0532      0.024     44.554      0.000       1.007       1.100
-zenith         0.0017      0.000      9.733      0.000       0.001       0.002
-algae      -2.111e-06   1.06e-07    -19.850      0.000   -2.32e-06    -1.9e-06
+const          0.4288      0.011     40.453      0.000       0.408       0.450
+density    -3.417e-05   9.62e-06     -3.552      0.000    -5.3e-05   -1.53e-05
+dz             0.9176      0.023     39.618      0.000       0.872       0.963
+zenith         0.0015      0.000      8.827      0.000       0.001       0.002
+algae      -2.416e-06   1.04e-07    -23.182      0.000   -2.62e-06   -2.21e-06
 ==============================================================================
-Omnibus:                       61.729   Durbin-Watson:                   0.075
-Prob(Omnibus):                  0.000   Jarque-Bera (JB):               53.959
-Skew:                          -0.588   Prob(JB):                     1.92e-12
-Kurtosis:                       2.384   Cond. No.                     3.69e+05
+Omnibus:                       79.041   Durbin-Watson:                   0.067
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              103.541
+Skew:                          -0.916   Prob(JB):                     3.28e-23
+Kurtosis:                       3.167   Cond. No.                     3.69e+05
 ==============================================================================
 
 Notes:
