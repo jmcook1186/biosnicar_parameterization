@@ -4,3 +4,4 @@ This repository is specifically for the parameterization of BioSNICAR_GO, ideall
 
 For users interested in the full model, the repository is here: www.github.com/jmcook1186/BioSNICAR_GO_PY.
 
+To run code in this repository, the Data directory from the full model repo must be copied into the top level directory here as this contains all the optical property files. Not included here as there are >5000 files.

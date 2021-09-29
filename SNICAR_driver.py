@@ -224,7 +224,7 @@ inputs.mss_cnc_Cook_Greenland_dust_L = [0]*len(inputs.dz) # GRIS dust (Cook et a
 inputs.mss_cnc_Cook_Greenland_dust_C = [0]*len(inputs.dz) # GRIS dust 1 (Cook et al. 2019 "mean")
 inputs.mss_cnc_Cook_Greenland_dust_H = [0]*len(inputs.dz) # GRIS dust 1 (Cook et al. 2019 "HIGH")
 inputs.mss_cnc_snw_alg = [0]*len(inputs.dz)    # Snow Algae (spherical, C nivalis) (Cook et al. 2017)
-inputs.mss_cnc_glacier_algae = [0,0]    # glacier algae in cells/ml or ppb depending on GA_units (Cook et al. 2020)
+inputs.mss_cnc_glacier_algae = [30000,0]    # glacier algae in cells/ml or ppb depending on GA_units (Cook et al. 2020)
 
 
 ##########################################################################

@@ -27,128 +27,20 @@ def generate_snicar_params_single_layer(density, dz, alg, solzen):
     return params
 
 
-def generate_snicar_params_exponential(dz, alg_surface, density_surface, zenith):
-
-    cum_dz = np.cumsum(dz)
-    rho_layers = np.zeros(len(dz))
-    mss_cnc_glacier_algae = np.zeros(len(dz))
-    layer_type = list(np.ones(len(dz)))
-
-    mss_cnc_glacier_algae[0] = alg_surface
-
-    for layer in np.arange(0,len(dz),1):
-        rho_layers[layer] = density_surface*np.exp(cum_dz[layer])
-    
-    rho_layers = (np.round(rho_layers,0)).astype(int)
-    rho_layers[rho_layers>900]=900
-    grain_rds = rho_layers
-
-    params = collections.namedtuple("params","rho_layers, grain_rds, layer_type, dz, mss_cnc_glacier_algae, solzen")
-    params.grain_rds = grain_rds
-    params.rho_layers = rho_layers
-    params.layer_type = layer_type
-    params.dz = dz
-    params.mss_cnc_glacier_algae = mss_cnc_glacier_algae
-    params.solzen = zenith
-
-    return params
-
-
-def generate_snicar_dataset_exponential(dz, algs_surface, densities_surface, zeniths, savepath):
-
-    data = []
-    BBAlist = []
-    Klist = []
-    lyr1_abs = []
-    lyr2_abs = []
-    lyr3_abs = []
-    lyr4_abs = []
-    lyr5_abs = []
-    lyr6_abs = []
-    lyr7_abs = []
-    lyr8_abs = []
-    lyr9_abs = []
-    lyr10_abs = []
-    lyr11_abs = []
-    # change due to density, zenith, algae & thickness
-
-    # @dask.delayed
-    # def run_snicar(dz,density_surface,zenith,alg_surface):
-
-    #     params = generate_snicar_params_exponential(dz, alg_surface, density_surface, zenith)             
-    #     albedo, BBA = call_snicar(params)
-
-    #     return BBA
-
-
-    for i in np.arange(0,len(densities_surface),1):
-        for j in np.arange(0,len(zeniths),1):
-            for k in np.arange(0,len(algs_surface),1):
-
-                dz = dz
-                density_surface = densities_surface[i]
-                zenith = zeniths[j]
-                alg_surface = algs_surface[k]
-
-                params = generate_snicar_params_exponential(dz, alg_surface, density_surface, zenith)             
-                albedo, BBA, F_abs = call_snicar(params)
-                
-                #BBA = run_snicar(dz,density_surface,zenith,alg_surface)
-                data.append((density_surface,zenith,alg_surface))
-                BBAlist.append(BBA)
-
-                lyr1_abs.append(F_abs[0])
-                lyr2_abs.append(F_abs[1])
-                lyr3_abs.append(F_abs[2])
-                lyr4_abs.append(F_abs[3])
-                lyr5_abs.append(F_abs[4])
-                lyr6_abs.append(F_abs[5])
-                lyr7_abs.append(F_abs[6])
-                lyr8_abs.append(F_abs[7])
-                lyr9_abs.append(F_abs[8])
-                lyr10_abs.append(F_abs[9])
-                lyr11_abs.append(F_abs[10])
-
-    # result = dask.compute(*BBAlist, scheduler='processes')
-    print(data)
-    out = pd.DataFrame()
-    density, zen, alg = zip(*data)
-
-    out['density (kg m^-3)'] = density
-    out['zenith (deg)'] = zen
-    out['algae (ppb)'] = alg
-    out['BBA'] = BBAlist
-    out['lyr1_abs'] = lyr1_abs
-    out['lyr2_abs'] = lyr2_abs
-    out['lyr3_abs'] = lyr3_abs
-    out['lyr4_abs'] = lyr4_abs
-    out['lyr5_abs'] = lyr5_abs
-    out['lyr6_abs'] = lyr6_abs
-    out['lyr7_abs'] = lyr7_abs
-    out['lyr8_abs'] = lyr8_abs
-    out['lyr9_abs'] = lyr9_abs
-    out['lyr10_abs'] = lyr10_abs
-    out['lyr11_abs'] = lyr11_abs
-    out.to_csv(str(savepath+'snicar_data.csv'))
-
-    return
-
-
-
-
 def generate_snicar_dataset_single_layer(densities, dzs, algs, solzens, savepath):
     
     data = []
     BBAlist = []
+    absList = []
     # change due to density, zenith, algae & thickness
 
     # @dask.delayed
     def run_snicar(dz,density,zen,alg):
 
         params = generate_snicar_params_single_layer(density, dz, alg, zen)             
-        albedo, BBA = call_snicar(params)
+        albedo, BBA, abs_slr = call_snicar(params)
 
-        return BBA
+        return BBA, abs_slr
 
 
     for i in np.arange(0,len(dzs),1):
@@ -161,9 +53,10 @@ def generate_snicar_dataset_single_layer(densities, dzs, algs, solzens, savepath
                     zen = solzens[k]
                     alg = algs[p]
                     
-                    BBA = run_snicar(dz,density,zen,alg)
+                    BBA, abs_slr = run_snicar(dz,density,zen,alg)
                     data.append((dz, density, zen, alg))
                     BBAlist.append(BBA)
+                    absList.append(abs_slr[0])
     
     #result = dask.compute(*BBAlist, scheduler='processes')
 
@@ -174,54 +67,15 @@ def generate_snicar_dataset_single_layer(densities, dzs, algs, solzens, savepath
     out['zenith'] = zen
     out['algae'] = alg
     out['BBA'] = BBAlist
+    out['abs'] = absList
     out.to_csv(str(savepath+'snicar_data_single_layer.csv'))
 
     return
 
 
-def regression_exponential(var, dz, algs_surface, densities_surface,zeniths,savepath, path_to_data):
-
-    data = pd.read_csv(path_to_data)
-
-    X = data[['density (kg m^-3)','algae (ppb)','zenith (deg)']]
-    X = sm.add_constant(X)
-    y = data[var]
-
-    model = sm.OLS(y,X).fit()
-
-    return model
 
 
-def abs_model_fit(dz, path_to_data):
-
-    data = pd.read_csv(path_to_data)
-    dzc = np.cumsum(dz)
-
-    y = data.iloc[0].to_numpy()
-    y = y[5:]
-    y[0] = 10 # set to constant 10 to avoid step in abs
-
-    # layer thicknesses in mm
-    corr = [1, 20, 20, 20, 20, 20, 50, 50, 100, 150, 200]
-
-    # normalise for variable layer thickness
-    y = y/corr
-
-    def func(x, a, b, c):
-        return a * np.exp(-b * x) + c
-
-    popt, pcov = sci.optimize.curve_fit(func, dzc, y)
-
-    print("Exponential decay function from surface to lower boundary:")
-    print("y represents absorption in Wm/2")
-    print(f"\ny = {popt[0]} * np.exp(-{popt[1]} * dz) + {popt[2]}\n")
-
-
-    return
-
-
-
-def regression_single_layer(path_to_data):
+def regression_single_layer(path_to_data, var):
     
     """
     prints model equation to console and returns the model object
@@ -235,14 +89,13 @@ def regression_single_layer(path_to_data):
 
     df = pd.read_csv(path_to_data)
     df = df[df.zenith>35]
-    # df['density_scaled'] = (df.density-df.density.min()) / (df.density.max()-df.density.min())
-    # df['zenith_scaled'] = (df.zenith-df.zenith.min()) / (df.zenith.max()-df.zenith.min())
-    # df['algae_scaled'] = (df.algae-df.algae.min()) / (df.algae.max()-df.algae.min())
-    # df['dz_scaled'] = (df.dz-df.dz.min()) / (df.dz.max()-df.dz.min())
-
     X = df[['density','dz','zenith','algae']]
     X = sm.add_constant(X)
-    y = df['BBA']
+    
+    if var == "BBA":
+        y = df['BBA']
+    elif var == "abs":
+        y = df['abs']
 
     model = sm.OLS(y,X).fit()
 
@@ -259,10 +112,9 @@ def regression_single_layer(path_to_data):
     
     r2 = np.round(model.rsquared,4)
 
-    print(f"r^2 value = {r2}")
+    print(f"{var} r^2 value = {r2}")
 
-    print("\nMODEL EQUATION:\n")
-
+    print(f"\n{var} MODEL EQUATION:\n")
 
     model_equation = f"({coef1} * {param1})+ \
     ({coef2} * {param2}) + \
@@ -275,95 +127,17 @@ def regression_single_layer(path_to_data):
     return model
 
 
-def test_model_exponential(dz, algs_surface, densities_surface, zeniths, model, savepath):
-    
-    BBAlist =[]
-    model_BBA = []
-    zenlist = []
-    alglist = []
-    denslist =[]
-    lyr1_abs = []
-    lyr2_abs = []
-    lyr3_abs = []
-    lyr4_abs = []
-    lyr5_abs = []
-    lyr6_abs = []
-    lyr7_abs = []
-    lyr8_abs = []
-    lyr9_abs = []
-    lyr10_abs = []
-    lyr11_abs = []
-
-    for i in np.arange(0,len(densities_surface),1):
-        for j in np.arange(0,len(zeniths),1):
-            for k in np.arange(0,len(algs_surface),1):
-
-                dz = dz
-                density_surface = densities_surface[i]
-                zenith = zeniths[j]
-                alg_surface = algs_surface[k]
-
-                params = generate_snicar_params_exponential(dz, alg_surface, density_surface, zenith)             
-                albedo, BBA, F_abs = call_snicar(params)
-                SNICARBBA.append(BBA)
-                model_BBA.append(float(model.predict([1,density_surface,alg_surface,zenith])))
-                zenlist.append(zenith)
-                denslist.append(density_surface)
-                alglist.append(alg_surface)
-                lyr1_abs.append(F_abs[0])
-                lyr2_abs.append(F_abs[1])
-                lyr3_abs.append(F_abs[2])
-                lyr4_abs.append(F_abs[3])
-                lyr5_abs.append(F_abs[4])
-                lyr6_abs.append(F_abs[5])
-                lyr7_abs.append(F_abs[6])
-                lyr8_abs.append(F_abs[7])
-                lyr9_abs.append(F_abs[8])
-                lyr10_abs.append(F_abs[9])
-                lyr11_abs.append(F_abs[10])
-
-                
-                # trigonometry to calculate path length based on total ice thickness and SZA
-                # cumdz = np.cumsum(dz)
-                # depth = cumdz[-1]
-                # PL = depth/np.sin(np.radians(zenith))
-                # Klist.append((-1/F_dwn[0]) * ((F_dwn[0] - F_dwn[-1])/PL))
-
-    df = pd.DataFrame()
-    df['density (kg m-3)'] = denslist
-    df['zenith (deg)'] = zenlist
-    df['algae (ppb)'] = alglist
-#    df['K (1/m)'] = K
-    df['snicar_BBA'] = SNICARBBA
-    df['param_BBA'] = model_BBA
-    df['lyr1_abs'] = lyr0_abs
-    df['lyr2_abs'] = lyr1_abs
-    df['lyr3_abs'] = lyr2_abs
-    df['lyr4_abs'] = lyr3_abs
-    df['lyr5_abs'] = lyr4_abs
-    df['lyr6_abs'] = lyr5_abs
-    df['lyr7_abs'] = lyr6_abs
-    df['lyr8_abs'] = lyr7_abs
-    df['lyr9_abs'] = lyr8_abs
-    df['lyr10_abs'] = lyr9_abs
-    df['lyr11_abs'] = lyr10_abs
-    
-    df = df[df.snicar<0.8]
-    df.to_csv(str(savepath+'parameterisation_tests.csv'))
-
-    return df
-
-
-
-def test_model_single_layer(test_densities, test_dzs, test_algs, test_zeniths, model, savepath):
+def test_model_single_layer(test_densities, test_dzs, test_algs, test_zeniths, modelBBA, modelABS, savepath):
 
 
     BBAlist =[]
-    model_BBA = []
+    modelBBAlist = []
+    modelABSlist =[]
     zenlist = []
     alglist = []
     denslist =[]
     dzlist =[]
+    absList = []
 
     # change due to density, zenith, algae & thickness
 
@@ -371,9 +145,9 @@ def test_model_single_layer(test_densities, test_dzs, test_algs, test_zeniths, m
     def run_snicar(dz,density,zen,alg):
 
         params = generate_snicar_params_single_layer(density, dz, alg, zen)             
-        albedo, BBA = call_snicar(params)
+        albedo, BBA, abs = call_snicar(params)
 
-        return BBA
+        return BBA, abs
 
 
     for i in np.arange(0,len(test_dzs),1):
@@ -386,14 +160,15 @@ def test_model_single_layer(test_densities, test_dzs, test_algs, test_zeniths, m
                     zen = test_zeniths[k]
                     alg = test_algs[p]
                     
-                    BBA = run_snicar(dz,density,zen,alg)
-                    model_BBA.append(model.predict([1, density, dz, zen, alg]))
+                    BBA, abs = run_snicar(dz,density,zen,alg)
+                    modelBBAlist.append(modelBBA.predict([1, density, dz, zen, alg]))
+                    modelABSlist.append(modelABS.predict([1, density, dz, zen, alg]))
                     denslist.append(density)
                     dzlist.append(dz)
                     zenlist.append(zen)
                     alglist.append(alg)
                     BBAlist.append(BBA)
-    
+                    absList.append(abs[0])
     
     df = pd.DataFrame()
     df['density (kg m-3)'] = denslist
@@ -401,7 +176,9 @@ def test_model_single_layer(test_densities, test_dzs, test_algs, test_zeniths, m
     df['zenith (deg)'] = zenlist
     df['algae (ppb)'] = alglist
     df['snicar_BBA'] = BBAlist
-    df['param_BBA'] = model_BBA
+    df['param_BBA'] = modelBBAlist
+    df['param_ABS'] = modelABSlist
+    df['snicar_ABS'] = absList
     
     df = df[df.snicar_BBA<0.8]
     df.to_csv(str(savepath+'parameterisation_tests_single_layer.csv'))
@@ -445,22 +222,22 @@ def evaluate_model_performance(path_to_data):
 def call_snicar(params):
 
     inputs = collections.namedtuple('inputs',['dir_base',\
-        'rf_ice', 'incoming_i', 'DIRECT', 'layer_type',\
-        'APRX_TYP', 'DELTA', 'solzen', 'TOON', 'ADD_DOUBLE', 'R_sfc', 'dz', 'rho_layers', 'grain_rds',\
-        'side_length', 'depth', 'rwater', 'nbr_lyr', 'nbr_aer', 'grain_shp', 'shp_fctr', 'grain_ar',\
-        'mss_cnc_soot1', 'mss_cnc_soot2', 'mss_cnc_brwnC1', 'mss_cnc_brwnC2', 'mss_cnc_dust1',\
-        'mss_cnc_dust2', 'mss_cnc_dust3', 'mss_cnc_dust4', 'mss_cnc_dust5', 'mss_cnc_ash1', 'mss_cnc_ash2',\
-        'mss_cnc_ash3', 'mss_cnc_ash4', 'mss_cnc_ash5', 'mss_cnc_ash_st_helens', 'mss_cnc_Skiles_dust1', 'mss_cnc_Skiles_dust2',\
-        'mss_cnc_Skiles_dust3', 'mss_cnc_Skiles_dust4', 'mss_cnc_Skiles_dust5', 'mss_cnc_GreenlandCentral1',\
-        'mss_cnc_GreenlandCentral2', 'mss_cnc_GreenlandCentral3', 'mss_cnc_GreenlandCentral4',\
-        'mss_cnc_GreenlandCentral5', 'mss_cnc_Cook_Greenland_dust_L', 'mss_cnc_Cook_Greenland_dust_C',\
-        'mss_cnc_Cook_Greenland_dust_H', 'mss_cnc_snw_alg', 'mss_cnc_glacier_algae', 'FILE_soot1',\
-        'FILE_soot2', 'FILE_brwnC1', 'FILE_brwnC2', 'FILE_dust1', 'FILE_dust2', 'FILE_dust3', 'FILE_dust4', 'FILE_dust5',\
-        'FILE_ash1', 'FILE_ash2', 'FILE_ash3', 'FILE_ash4', 'FILE_ash5', 'FILE_ash_st_helens', 'FILE_Skiles_dust1', 'FILE_Skiles_dust2',\
-        'FILE_Skiles_dust3', 'FILE_Skiles_dust4', 'FILE_Skiles_dust5', 'FILE_GreenlandCentral1',\
-        'FILE_GreenlandCentral2', 'FILE_GreenlandCentral3', 'FILE_GreenlandCentral4', 'FILE_GreenlandCentral5',\
-        'FILE_Cook_Greenland_dust_L', 'FILE_Cook_Greenland_dust_C', 'FILE_Cook_Greenland_dust_H', 'FILE_snw_alg', 'FILE_glacier_algae',\
-        'tau', 'g', 'SSA', 'mu_not', 'nbr_wvl', 'wvl', 'Fs', 'Fd', 'L_snw', 'flx_slr'])
+    'rf_ice', 'incoming_i', 'DIRECT', 'layer_type',\
+    'APRX_TYP', 'DELTA', 'solzen', 'TOON', 'ADD_DOUBLE', 'R_sfc', 'dz', 'rho_layers', 'grain_rds',\
+    'side_length', 'depth', 'rwater', 'nbr_lyr', 'nbr_aer', 'grain_shp', 'shp_fctr', 'grain_ar', 'GA_units',\
+    'Cfactor','mss_cnc_soot1', 'mss_cnc_soot2', 'mss_cnc_brwnC1', 'mss_cnc_brwnC2', 'mss_cnc_dust1',\
+    'mss_cnc_dust2', 'mss_cnc_dust3', 'mss_cnc_dust4', 'mss_cnc_dust5', 'mss_cnc_ash1', 'mss_cnc_ash2',\
+    'mss_cnc_ash3', 'mss_cnc_ash4', 'mss_cnc_ash5', 'mss_cnc_ash_st_helens', 'mss_cnc_Skiles_dust1', 'mss_cnc_Skiles_dust2',\
+    'mss_cnc_Skiles_dust3', 'mss_cnc_Skiles_dust4', 'mss_cnc_Skiles_dust5', 'mss_cnc_GreenlandCentral1',\
+    'mss_cnc_GreenlandCentral2', 'mss_cnc_GreenlandCentral3', 'mss_cnc_GreenlandCentral4',\
+    'mss_cnc_GreenlandCentral5', 'mss_cnc_Cook_Greenland_dust_L', 'mss_cnc_Cook_Greenland_dust_C',\
+    'mss_cnc_Cook_Greenland_dust_H', 'mss_cnc_snw_alg', 'mss_cnc_glacier_algae', 'FILE_soot1',\
+    'FILE_soot2', 'FILE_brwnC1', 'FILE_brwnC2', 'FILE_dust1', 'FILE_dust2', 'FILE_dust3', 'FILE_dust4', 'FILE_dust5',\
+    'FILE_ash1', 'FILE_ash2', 'FILE_ash3', 'FILE_ash4', 'FILE_ash5', 'FILE_ash_st_helens', 'FILE_Skiles_dust1', 'FILE_Skiles_dust2',\
+    'FILE_Skiles_dust3', 'FILE_Skiles_dust4', 'FILE_Skiles_dust5', 'FILE_GreenlandCentral1',\
+    'FILE_GreenlandCentral2', 'FILE_GreenlandCentral3', 'FILE_GreenlandCentral4', 'FILE_GreenlandCentral5',\
+    'FILE_Cook_Greenland_dust_L', 'FILE_Cook_Greenland_dust_C', 'FILE_Cook_Greenland_dust_H', 'FILE_snw_alg', 'FILE_glacier_algae',\
+    'tau', 'g', 'SSA', 'mu_not', 'nbr_wvl', 'wvl', 'Fs', 'Fd', 'L_snw', 'flx_slr'])
 
 
     ##############################
@@ -555,6 +332,13 @@ def call_snicar(params):
     # Define total number of different LAPs/aerosols in model
     inputs.nbr_aer = 30
 
+    inputs.GA_units = 0
+
+    # determine C_factor (can be None or a number)
+    # this is the concentrating factor that accounts for
+    # resolution difference in field samples and model layers
+    inputs.Cfactor = 10
+
     # Set names of files containing the optical properties of these LAPs:
     inputs.FILE_soot1  = 'mie_sot_ChC90_dns_1317.nc'
     inputs.FILE_soot2  = 'miecot_slfsot_ChC90_dns_1317.nc'
@@ -628,7 +412,6 @@ def call_snicar(params):
     inputs.mss_cnc_snw_alg = [0]*len(params.dz)    # Snow Algae (spherical, C nivalis) (Cook et al. 2017)
     inputs.mss_cnc_glacier_algae = params.mss_cnc_glacier_algae   # glacier algae type1 (Cook et al. 2020)
 
-    nbr_aer = 30
     
     outputs = snicar_feeder(inputs)
     
