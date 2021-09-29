@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "/home/joe/anaconda3/envs/BioSNICAR_py/bin/python",
+    "git.ignoreLimitWarning": true,
+    "jupyter.jupyterServerType": "local"
+}
