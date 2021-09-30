@@ -8,11 +8,22 @@ To run code in this repository, the Data directory from the full model repo must
 
 ## Parameterisation Background
 
-The aim of this repository is to define a set of simple linear equations that can predict the output of the BiOSNICAR_GO radiative transfer model to a sufficient degree of accuracy (say r2 > 0.9) so that those equations can replace the full model as the albedo component in large, computationally expensive surface mass balance simulations. Specifically, this repository is designed to parameterise the full RTM for the SMB model MAR. This is part of an ongoing effort in collaboraton with @atedstone to completely replace MAR's albedo scheme and couple it to an ice surface physical development model. The variables we need to predict are the broadband albedo (BBA) of the ice an the total energy absorbed in the surface layer (abs). The independent variables are solar zenith angle, ice layer thickness, ice density and concentration of glacier algae on the ice surface.
+The aim of this repository is to define a set of simple linear equations that can predict the output of the BiOSNICAR_GO radiative transfer model to a sufficient degree of accuracy (say r2 > 0.9) so that those equations can replace the full model as the albedo component in large, computationally expensive surface mass balance simulations. Specifically, this repository is designed to parameterise the full RTM for the SMB model MAR. This is part of an ongoing effort led by @atedstone to completely replace MAR's albedo scheme and couple it to an ice surface physical development model. The variables we need to predict are the broadband albedo (BBA) of the ice an the total energy absorbed in the surface layer (abs). The independent variables are solar zenith angle, ice layer thickness, ice density and concentration of glacier algae on the ice surface.
 
 The parameterisation works by running the full RTM with a large set of input values for each of the predictor variables and recording the predicted BBA and abs. Multiple linear regression on the resulting dataset, first with BBA as the dependent variable and then with abs as the dependent variable, yields two linear equations that predict BBA and abs from the four input variables.
 
 The regression is performed on a dataset generated from a predefined set of input values. The model performance is then evaluated by running the full model with an independent set of input values with no duplication of values in the original model runs. For the same inout values, the BBA and abs is also predicted using the linear equations. The linear model performance is then assessed by regressing the full model predictions against the linear equation predictions and also calculating the standard error of each set of predictions.
+
+## Validity bounds and model config
+
+The parameterisation is valid across the following ranges of input variables:
+
+layer thickness dz: 0.15 - 1 m
+algae concentration: 0 - 40,000 ppb (x 10 by default to account for concentration in upper 1mm)
+ice density: 400-850 kgm-3
+solar zenith angles: 30 - 70 degrees
+
+The ice column is structured with an upper 1mm layer that contains all glacier algae overlying a second layer of thickness dz. This second layer spans from the underside of the upper 1mm algal layer to the upper boundary of a semi-infinite underlying ice layer whose spectral albedo is set equal to that of field measured smooth, clean glacier ice. The spectral distribution of the incoming irradiance is fixed at snicar's default "summit summer" profile. The ice is always assumed to be solid slabs rather than granular layers whose albedo is calculated using snicar's adding-doubling solver (Whicker et al 2021).
 
 ## Caveats and nuances
 
@@ -33,11 +44,11 @@ The parameterisation models are:
 
 ### BBA
 
-BBA = (-2.416e-6 * Malg) + (0.0015 * zenith) + (0.9176 * dz) - (3.417e-5 * density) + 0.4288 
+BBA = (-2.864e-6 * Malg) + (0.001 * zenith) + (0.0309 * dz) - (0.0001 * density) + 0.6514 
 
 ### Absorption
 
-abs = (0.0016 * Malg) - (2.1188 * zenith) + (4.3912 * dz) + (0.0857 * density) + 134.4134
+abs = (0.0017 * Malg) - (2.478 * zenith) + (2.4591 * dz) + (0.0776 * density) + 163.9059
 
 Their performance aganst the full model was as follows:
 
@@ -46,13 +57,19 @@ Their performance aganst the full model was as follows:
 
 <img src="./Assets/BBA_test_results.png" width=500>
 
-linear regression between full model and parameterisation r2 = 0.998 (p < 0.01)
-absolute error = 0.022 +/- 0.012 (albedo units)
+linear regression model between full model and parameterisation using "training" dataset: r2 = 0.945 (p < 0.001)
+
+linear regression between full model and parameterisation using unseen data: r2 = 0.999 (p < 0.01)
+
+absolute error = 0.007 +/- 0.006 (albedo units)
 
 ### Abs
 (black line represents 1:1 fit)
 
 <img src="./Assets/ABS_test_results.png" width=500>
 
-linear regression between full model and parameterisation r2 = 0.996 (p < 0.01)
-absolute error = 5.41 +/- 3.79 W/m^2 (error ~0.6% of total energy)
+linear regression model between full model and parameterisation using "training" dataset: r2 = 0.947 (p < 0.001)
+
+linear regression between full model and parameterisation using unseen data: r2 = 0.998 (p < 0.01)
+
+absolute error = 7.16 +/- 5.99 W/m^2
