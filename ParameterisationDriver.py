@@ -1,5 +1,4 @@
 
-
 from ParameterisationFuncs import generate_snicar_dataset_single_layer, save_model,\
     regression_single_layer, test_model_single_layer
 import matplotlib.pyplot as plt
@@ -11,10 +10,10 @@ import statsmodels.api as sm
 # SET USER DEFINE VARIABLES
 ###########################
 
-dzs = [0.15, 0.2, 0.3, 0.5, 0.75, 1]
-algs = [0, 5000, 10000, 15000, 20000, 30000, 40000]
-densities = [400, 500, 600, 700, 800]
-zeniths = [30, 40, 50, 60, 70]
+dzs = [0.1, 0.15, 0.2, 0.3, 0.5, 0.6, 0.7]
+algs = [0, 3000, 5000, 7000, 9000, 11000, 13000, 15000, 20000]
+densities = [400, 500, 600, 700, 800, 850]
+zeniths = [30, 40, 50, 60, 70, 80]
 savepath = '/home/joe/Code/BioSNICARParameterization/'
 path_to_data = str(savepath+'snicar_data_single_layer.csv')
 
@@ -30,30 +29,30 @@ save_model(modelBBA,str(savepath+'parameterisation_model_BBA_single_layer.pkl'),
 save_model(modelABS,str(savepath+'parameterisation_model_ABS_single_layer.pkl'),"ABS",savepath)
 
 ## test model
-test_dzs = [0.25, 0.4, 0.6, 0.9]
-test_algs = [0, 7000, 13000, 17000, 25000, 35000]
-test_dens = [450, 550, 650, 750, 800]
-test_zeniths = [35, 45, 55, 65]
+test_dzs = [0.18, 0.25, 0.35, 0.45, 0.55, 0.65]
+test_algs = [0, 2000, 4000, 8000, 10000, 12000, 14000, 16000]
+test_dens = [425, 450, 550, 650, 750, 775, 825]
+test_zeniths = [35, 45, 55, 65, 75]
 
 test_results = test_model_single_layer(test_dens, test_dzs, test_algs,\
     test_zeniths, modelBBA, modelABS, savepath)
 
 test_results.param_BBA = test_results.param_BBA.astype(float)
 test_results.param_ABS = test_results.param_ABS.astype(float)
-test_results = test_results[test_results['dz (m)']>0.15]
+
+test_results.to_csv('param_test_results.csv')
 
 plt.figure()
-plt.scatter(test_results.snicar_BBA, test_results.param_BBA,marker='^',facecolor='None',color='g')
+plt.scatter(test_results.snicar_BBA, test_results.param_BBA, marker='^',facecolor='None',color='g')
 plt.plot(np.arange(0,1.1,0.1),np.arange(0,1.1,0.1), color='k')
-plt.ylim(0.45,0.75),plt.xlim(0.45,0.75),plt.ylabel('parameterisation BBA'),plt.xlabel('snicar BBA')
+plt.ylabel('parameterisation BBA'),plt.xlabel('snicar BBA')
 plt.savefig(str(savepath+"BBA_test_results.png"))
 
 plt.figure()
 plt.scatter(test_results.snicar_ABS, test_results.param_ABS,marker='o',facecolor='None',color='b')
 plt.plot(np.arange(0,260,1),np.arange(0,260,1), color='k')
-plt.ylim(20,260),plt.xlim(20,260),plt.ylabel('parameterisation abs (W/m2)'),plt.xlabel('snicar abs (W/m2)')
+plt.ylabel('parameterisation abs (W/m2)'),plt.xlabel('snicar abs (W/m2)')
 plt.savefig(str(savepath+"ABS_test_results.png"))
-
 
 
 BBA_abs_error = np.mean(abs(test_results.snicar_BBA - test_results.param_BBA))

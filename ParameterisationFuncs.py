@@ -36,7 +36,7 @@ def generate_snicar_dataset_single_layer(densities, dzs, algs, solzens, savepath
 
     # @dask.delayed
     def run_snicar(dz,density,zen,alg):
-
+        
         params = generate_snicar_params_single_layer(density, dz, alg, zen)             
         albedo, BBA, abs_slr = call_snicar(params)
 
@@ -47,7 +47,8 @@ def generate_snicar_dataset_single_layer(densities, dzs, algs, solzens, savepath
         for j in np.arange(0,len(densities),1):
             for k in np.arange(0,len(solzens),1):
                 for p in np.arange(0,len(algs),1):
-
+                    
+                    
                     dz = dzs[i]
                     density = densities[j]
                     zen = solzens[k]
@@ -68,7 +69,7 @@ def generate_snicar_dataset_single_layer(densities, dzs, algs, solzens, savepath
     out['algae'] = alg
     out['BBA'] = BBAlist
     out['abs'] = absList
-    out.to_csv(str(savepath+'snicar_data_single_layer.csv'))
+    out.to_csv(str(savepath+'snicar_data_single_layer.csv'), index=False)
 
     return
 
@@ -87,17 +88,24 @@ def regression_single_layer(path_to_data, var):
     
     """
 
-    df = pd.read_csv(path_to_data)
-    df = df[df.zenith>35]
+    df = pd.read_csv(path_to_data, index_col=False)
     X = df[['density','dz','zenith','algae']]
     X = sm.add_constant(X)
     
+    X.to_csv('regression_df.csv')
+    X.rename(columns={ X.columns[0]: "const" }, inplace = True)
+
+    print(X.columns[0])
+    print(X[X.columns[0]])
+
     if var == "BBA":
         y = df['BBA']
     elif var == "abs":
         y = df['abs']
 
     model = sm.OLS(y,X).fit()
+
+    print(model.params)
 
     param1 = X.columns[1]
     param2 = X.columns[2]
@@ -143,7 +151,7 @@ def test_model_single_layer(test_densities, test_dzs, test_algs, test_zeniths, m
 
     # @dask.delayed
     def run_snicar(dz,density,zen,alg):
-
+        print(alg)
         params = generate_snicar_params_single_layer(density, dz, alg, zen)             
         albedo, BBA, abs = call_snicar(params)
 
@@ -159,6 +167,7 @@ def test_model_single_layer(test_densities, test_dzs, test_algs, test_zeniths, m
                     density = test_densities[j]
                     zen = test_zeniths[k]
                     alg = test_algs[p]
+                    print(test_algs[p])
                     
                     BBA, abs = run_snicar(dz,density,zen,alg)
                     modelBBAlist.append(modelBBA.predict([1, density, dz, zen, alg]))
@@ -203,8 +212,8 @@ def call_snicar(params):
     inputs = collections.namedtuple('inputs',['dir_base',\
     'rf_ice', 'incoming_i', 'DIRECT', 'layer_type',\
     'APRX_TYP', 'DELTA', 'solzen', 'TOON', 'ADD_DOUBLE', 'R_sfc', 'dz', 'rho_layers', 'grain_rds',\
-    'side_length', 'depth', 'rwater', 'nbr_lyr', 'nbr_aer', 'grain_shp', 'shp_fctr', 'grain_ar', 'GA_units',\
-    'Cfactor','mss_cnc_soot1', 'mss_cnc_soot2', 'mss_cnc_brwnC1', 'mss_cnc_brwnC2', 'mss_cnc_dust1',\
+    'side_length', 'depth', 'rwater', 'nbr_lyr', 'nbr_aer', 'grain_shp', 'shp_fctr', 'grain_ar', 'SA_units','GA_units',\
+    'Cfactor_SA','Cfactor_GA','cdom_layer','mss_cnc_soot1', 'mss_cnc_soot2', 'mss_cnc_brwnC1', 'mss_cnc_brwnC2', 'mss_cnc_dust1',\
     'mss_cnc_dust2', 'mss_cnc_dust3', 'mss_cnc_dust4', 'mss_cnc_dust5', 'mss_cnc_ash1', 'mss_cnc_ash2',\
     'mss_cnc_ash3', 'mss_cnc_ash4', 'mss_cnc_ash5', 'mss_cnc_ash_st_helens', 'mss_cnc_Skiles_dust1', 'mss_cnc_Skiles_dust2',\
     'mss_cnc_Skiles_dust3', 'mss_cnc_Skiles_dust4', 'mss_cnc_Skiles_dust5', 'mss_cnc_GreenlandCentral1',\
@@ -312,11 +321,15 @@ def call_snicar(params):
     inputs.nbr_aer = 30
 
     inputs.GA_units = 0
+    inputs.SA_units = 0
 
     # determine C_factor (can be None or a number)
     # this is the concentrating factor that accounts for
     # resolution difference in field samples and model layers
-    inputs.Cfactor = 10
+    inputs.Cfactor_SA = 10
+    inputs.Cfactor_GA = 10
+    
+    inputs.cdom_layer =[0]*len(params.dz)
 
     # Set names of files containing the optical properties of these LAPs:
     inputs.FILE_soot1  = 'mie_sot_ChC90_dns_1317.nc'
