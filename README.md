@@ -101,7 +101,12 @@ The regression equation is:
 
 r2 = 1.0, p < 0.0001, F = 1.243e11
 
-Note that here Malg is expressed in untis of kg/kg which is equal to Malg in ppb * 1e-9
+Note that here Malg is expressed in units of kg/kg which is equal to Malg in ppb * 1e-9
+
+<img src="./Assets/ALG_BBEXT.jpg" width=500>
+plot showing spectral extinction coefficient for increasing Malg
+<img src="./Assets/WVL_SPECTRALEXT.jpg" width=500>
+plot showing broadband extinction coefficient against Malg
 
 ## MAR Workflow
 
