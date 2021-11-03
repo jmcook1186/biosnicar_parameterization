@@ -103,6 +103,8 @@ r2 = 1.0, p < 0.0001, F = 1.243e11
 
 Note that here Malg is expressed in units of kg/kg which is equal to Malg in ppb * 1e-9
 
+Note also that the broadband extinction coefficient is weighted by the spectral distribution of the incoming irradiance, which is variable. Therefore, we include the option to run this with completely clear or completely cloudy skies. The user may then decide to implement a linear ramp between these two end member states based on the cloud cover in their specific use-case. 
+
 <img src="./Assets/ALG_BBEXT.jpg" width=500>
 plot showing spectral extinction coefficient for increasing Malg
 <img src="./Assets/WVL_SPECTRALEXT.jpg" width=500>
