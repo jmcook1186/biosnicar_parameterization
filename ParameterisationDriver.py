@@ -12,7 +12,7 @@ import statsmodels.api as sm
 
 dzs = [0.1, 0.15, 0.2, 0.3, 0.5, 0.6, 0.7]
 algs = [0, 3000, 5000, 7000, 9000, 11000, 13000, 15000, 20000]
-densities = [400, 500, 600, 700, 800, 850]
+densities = [400, 500, 600, 700, 800, 850, 900]
 zeniths = [30, 40, 50, 60, 70, 80]
 savepath = '/home/joe/Code/BioSNICARParameterization/'
 path_to_data = str(savepath+'snicar_data_single_layer.csv')
@@ -30,7 +30,7 @@ save_model(modelABS,str(savepath+'parameterisation_model_ABS_single_layer.pkl'),
 
 ## test model
 test_dzs = [0.18, 0.25, 0.35, 0.45, 0.55, 0.65]
-test_algs = [0, 2000, 4000, 8000, 10000, 12000, 14000, 16000]
+test_algs = [0, 2000, 4000, 8000, 10000, 12000, 14000, 16000, 20000]
 test_dens = [425, 450, 550, 650, 750, 775, 825]
 test_zeniths = [35, 45, 55, 65, 75]
 

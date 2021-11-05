@@ -12,7 +12,6 @@ one for cloiudy skies.
 
 """
 
-
 def calculate_ext_coeff(dir_base, alg_list, cloudy, wvl, density_WC, density_algae, density_ice):
     
     BBcoeff = []
