@@ -11,7 +11,7 @@ import dask
 def generate_snicar_params_single_layer(density, dz, alg, solzen):
     
     rho_layers = [density,density]
-    grain_rds = [1000-density,1000-density]
+    grain_rds = [10000-(density*10),10000-(density*10)]
     layer_type = [1,1]
     mss_cnc_glacier_algae = [alg,0]
     dz = [0.001, dz]
@@ -135,7 +135,8 @@ def regression_single_layer(path_to_data, var):
     return model
 
 
-def test_model_single_layer(test_densities, test_dzs, test_algs, test_zeniths, modelBBA, modelABS, savepath):
+def test_model_single_layer(test_densities, test_dzs, test_algs,\
+    test_zeniths, modelBBA, modelABS, savepath):
 
 
     BBAlist =[]
