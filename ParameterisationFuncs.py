@@ -362,16 +362,8 @@ def call_snicar(params):
     inputs.FILE_Cook_Greenland_dust_C = 'dust_greenland_Cook_CENTRAL_20190911.nc'
     inputs.FILE_Cook_Greenland_dust_H = 'dust_greenland_Cook_HIGH_20190911.nc'
     inputs.FILE_snw_alg  = 'snw_alg_r025um_chla020_chlb025_cara150_carb140.nc'
-    inputs.FILE_glacier_algae = 'Cook2020_glacier_algae_4_40.nc'
+    inputs.FILE_glacier_algae = 'GA_Chevrollier2022_r4.9_L18.8.nc'
 
-    # Add more glacier algae (not functional in current code)
-    # (optical properties generated with GO), not included in the current model
-    # algae1_r = 6 # algae radius
-    # algae1_l = 60 # algae length
-    # FILE_glacier_algae1 = str(dir_go_lap_files + 'RealPhenol_algae_geom_{}_{}.nc'.format(algae1_r,algae1_l))
-    # algae2_r = 2 # algae radius
-    # algae2_l = 10 # algae length
-    # FILE_glacier_algae2 = str(dir_go_lap_files + 'RealPhenol_algae_geom_{}_{}.nc'.format(algae2_r,algae2_l))
 
         
     inputs.mss_cnc_soot1 = [0]*len(params.dz)    # uncoated black carbon (Bohren and Huffman, 1983)
