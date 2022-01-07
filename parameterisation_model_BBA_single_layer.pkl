@@ -1,30 +1,30 @@
                             OLS Regression Results                            
 ==============================================================================
-Dep. Variable:                    BBA   R-squared:                       0.712
-Model:                            OLS   Adj. R-squared:                  0.711
-Method:                 Least Squares   F-statistic:                     776.2
-Date:                Tue, 04 Jan 2022   Prob (F-statistic):               0.00
-Time:                        10:58:01   Log-Likelihood:                 1975.8
-No. Observations:                1260   AIC:                            -3942.
-Df Residuals:                    1255   BIC:                            -3916.
+Dep. Variable:                    BBA   R-squared:                       0.729
+Model:                            OLS   Adj. R-squared:                  0.729
+Method:                 Least Squares   F-statistic:                     1779.
+Date:                Fri, 07 Jan 2022   Prob (F-statistic):               0.00
+Time:                        11:11:02   Log-Likelihood:                 4232.1
+No. Observations:                2646   AIC:                            -8454.
+Df Residuals:                    2641   BIC:                            -8425.
 Df Model:                           4                                         
 Covariance Type:            nonrobust                                         
 ==============================================================================
                  coef    std err          t      P>|t|      [0.025      0.975]
 ------------------------------------------------------------------------------
-const          0.3018      0.010     29.952      0.000       0.282       0.322
-density       -0.0002   8.23e-06    -23.213      0.000      -0.000      -0.000
-dz             0.2239      0.005     47.620      0.000       0.215       0.233
-zenith         0.0017      0.000     16.633      0.000       0.001       0.002
-algae      -1.971e-06   4.26e-07     -4.630      0.000   -2.81e-06   -1.14e-06
+const          0.3282      0.005     61.780      0.000       0.318       0.339
+density       -0.0002    5.5e-06    -36.297      0.000      -0.000      -0.000
+dz             0.2063      0.003     65.663      0.000       0.200       0.212
+zenith         0.0015   5.57e-05     26.855      0.000       0.001       0.002
+algae      -4.243e-06   1.53e-07    -27.643      0.000   -4.54e-06   -3.94e-06
 ==============================================================================
-Omnibus:                       98.037   Durbin-Watson:                   0.038
-Prob(Omnibus):                  0.000   Jarque-Bera (JB):               70.122
-Skew:                          -0.471   Prob(JB):                     5.93e-16
-Kurtosis:                       2.332   Cond. No.                     1.08e+05
+Omnibus:                      136.113   Durbin-Watson:                   0.091
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              140.686
+Skew:                          -0.530   Prob(JB):                     2.82e-31
+Kurtosis:                       2.609   Cond. No.                     6.74e+04
 ==============================================================================
 
 Warnings:
 [1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
-[2] The condition number is large, 1.08e+05. This might indicate that there are
+[2] The condition number is large, 6.74e+04. This might indicate that there are
 strong multicollinearity or other numerical problems.

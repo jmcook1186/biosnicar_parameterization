@@ -13,7 +13,7 @@ import statsmodels.api as sm
 dzs = [0.05, 0.1, 0.15, 0.2, 0.3, 0.5, 0.6, 0.7, 1]
 algs = [0, 5000, 7000, 11000, 13000, 15000, 20000]
 densities = [400, 500, 600, 700, 800, 850, 900]
-zeniths = [40, 50, 60, 70, 80]
+zeniths = [30, 40, 50, 60, 70, 80]
 savepath = '/home/joe/Code/BioSNICARParameterization/'
 path_to_data = str(savepath+'snicar_data_single_layer.csv')
 

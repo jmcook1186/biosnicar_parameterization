@@ -14,6 +14,7 @@ def generate_snicar_params_single_layer(density, dz, alg, solzen):
     grain_rds = [10000-(density*10),10000-(density*10)]
     layer_type = [1,1]
     mss_cnc_glacier_algae = [alg,0]
+    print("alg passed to params{}".format(mss_cnc_glacier_algae))
     dz = [0.001, dz]
 
     params = collections.namedtuple("params","rho_layers, grain_rds, layer_type, dz, mss_cnc_glacier_algae, solzen")
@@ -53,6 +54,7 @@ def generate_snicar_dataset_single_layer(densities, dzs, algs, solzens, savepath
                     density = densities[j]
                     zen = solzens[k]
                     alg = algs[p]
+                    print("alg conc passed to run_snicar: {}".format(alg))
                     
                     BBA, abs_slr = run_snicar(dz,density,zen,alg)
                     data.append((dz, density, zen, alg))
@@ -168,7 +170,6 @@ def test_model_single_layer(test_densities, test_dzs, test_algs,\
                     density = test_densities[j]
                     zen = test_zeniths[k]
                     alg = test_algs[p]
-                    print(test_algs[p])
                     
                     BBA, abs = run_snicar(dz,density,zen,alg)
                     modelBBAlist.append(modelBBA.predict([1, density, dz, zen, alg]))
@@ -321,14 +322,14 @@ def call_snicar(params):
     # Define total number of different LAPs/aerosols in model
     inputs.nbr_aer = 30
 
-    inputs.GA_units = 0
-    inputs.SA_units = 0
+    inputs.GA_units = 1
+    inputs.SA_units = 1
 
     # determine C_factor (can be None or a number)
     # this is the concentrating factor that accounts for
     # resolution difference in field samples and model layers
-    inputs.Cfactor_SA = 10
-    inputs.Cfactor_GA = 10
+    inputs.Cfactor_SA = 30
+    inputs.Cfactor_GA = 30
     
     inputs.cdom_layer =[0]*len(params.dz)
 
@@ -396,7 +397,7 @@ def call_snicar(params):
     inputs.mss_cnc_Cook_Greenland_dust_H = [0]*len(params.dz)
     inputs.mss_cnc_snw_alg = [0]*len(params.dz)    # Snow Algae (spherical, C nivalis) (Cook et al. 2017)
     inputs.mss_cnc_glacier_algae = params.mss_cnc_glacier_algae   # glacier algae type1 (Cook et al. 2020)
-
+    print("alg inside snicar: {}".format(inputs.mss_cnc_glacier_algae))
     
     outputs = snicar_feeder(inputs)
     
