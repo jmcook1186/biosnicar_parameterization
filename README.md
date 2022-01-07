@@ -58,14 +58,15 @@ The parameterisation models are:
 
 ### BBA
 
-BBA = (-1.971e-6 * Malg) + (0.0017 * zenith) + (0.2239 * dz) - (0.0002 * density) + 0.3018 
+BBA = (-4.24e-6 * Malg) + (0.0015 * zenith) + (0.206 * dz) - (0.0002 * density) + 0.3282 
 
 
 ### Absorption
 
-abs = (0.0015 * Malg) - (-1.86 * zenith) + (15.04 * dz) + (0.0626 * density) + 126.5919
+abs = (0.0028 * Malg) - (-2.18 * zenith) + (15.54 * dz) + (0.0622 * density) + 142.732
 
 Their performance aganst the full model was as follows:
+
 
 
 ### BBA
@@ -74,7 +75,7 @@ Their performance aganst the full model was as follows:
 <img src="./Assets/BBA_test_results.png" width=500>
 
 
-linear regression model between full model and parameterisation using "training" dataset: r2 = 0.945 (p < 0.001)
+linear regression model between full model and parameterisation using "training" dataset: r2 = 0.73 (p < 0.001)
 
 linear regression between full model and parameterisation using unseen data: r2 = 0.993 (p < 0.01)
 
@@ -85,11 +86,11 @@ absolute error = 0.04 +/- 0.02 (albedo units)
 
 <img src="./Assets/ABS_test_results.png" width=500>
 
-linear regression model between full model and parameterisation using "training" dataset: r2 = 0.947 (p < 0.001)
+linear regression model between full model and parameterisation using "training" dataset: r2 = 0.93 (p < 0.001)
 
-linear regression between full model and parameterisation using unseen data: r2 = 0.995 (p < 0.01)
+linear regression between full model and parameterisation using unseen data: r2 = 0.992 (p < 0.01)
 
-absolute error = 5.57 +/- 3.16 W/m^2
+absolute error = 8.18 +/- 3.16 W/m^2
 
 
 ### Extinction Coefficient
